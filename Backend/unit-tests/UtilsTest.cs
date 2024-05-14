@@ -69,6 +69,8 @@ public class UtilsTest(Xlog Console)
         Console.WriteLine($"And {result.Length} users were added.");
         Console.WriteLine("The test also asserts that the users added " +
             "are equivalent (the same) as the expected users!");
+        Console.WriteLine("LENGTH OF mockUsersNotInDb "+ mockUsersNotInDb.Length);
+        Console.WriteLine("LENGTH OF result "+ result.Length);
         Assert.Equivalent(mockUsersNotInDb, result);
         Console.WriteLine("The test passed!");
     }
