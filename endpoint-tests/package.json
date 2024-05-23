@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
-  "scripts": {
+   "scripts": {
     "test": "newman run Example.postman_collection.json"
   },
   "keywords": [],
