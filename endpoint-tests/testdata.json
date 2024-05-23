@@ -14,6 +14,19 @@
       "description": "Allt du behöver för att hålla hemmet rent."
     }
   ],
-  "products": [],
-  "comments": []
+  "products": [
+    {
+      "name": "Gurka",
+      "description": "Färsk, krispig gurka. Ekologiskt odlad i Bjärred.",
+      "price": 25,
+      "categoryId": "Grönsaker"
+    }
+  ],
+  "comments": [
+    {
+      "comment": "Very nice gurka",
+      "productId": "Gurka",
+      "userId": 3
+    }
+  ]
 }
