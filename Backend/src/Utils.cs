@@ -1,3 +1,5 @@
+using Microsoft.VisualStudio.TestPlatform.CrossPlatEngine.Helpers;
+
 namespace WebApp;
 public static class Utils
 {
@@ -5,6 +7,7 @@ public static class Utils
     private static readonly Arr mockUsers = JSON.Parse(
         File.ReadAllText(FilePath("json", "mock-users.json"))
     );
+
 
     // Read all bad words from file and sort from longest to shortest
     // if we didn't sort we would often get "---ing" instead of "---" etc.
@@ -63,6 +66,65 @@ public static class Utils
         }
         return successFullyWrittenUsers;
     }
+
+    public static Arr RemoveMockUsers()
+    {
+    // Lista för att hålla de användare som faktiskt togs bort
+    Arr successfullyRemovedUsers = new Arr();
+
+    foreach (var user in mockUsers)
+    {
+        // Kontrollera om användaren finns i databasen
+        var result = SQLQueryOne(
+            "SELECT * FROM users WHERE email = $email",
+            new { email = user.email }
+        );
+
+        // Om användaren finns i databasen, ta bort användaren
+        if (result != null && !result.HasKey("error"))
+        {
+            // Ta bort användaren
+            var deleteResult = SQLQueryOne(
+                "DELETE FROM users WHERE email = $email RETURNING firstName, lastName, email",
+                new { email = user.email }
+            );
+
+            // Om borttagningen lyckades, lägg till användaren i listan
+            if (deleteResult != null && !deleteResult.HasKey("error"))
+            {
+                successfullyRemovedUsers.Push(deleteResult);
+            }
+        }
+    }
+
+    return successfullyRemovedUsers;
+    }
+
+    public static Obj CountDomainsFromUserEmails()
+{
+    // Hämta alla användare från databasen
+    var users = SQLQuery("SELECT email FROM users");
+
+    Obj domainCounts = new Obj();
+
+    foreach (var user in users)
+    {
+        var email = user.email;
+        var domain = email.Split('@')[1];
+
+        if (domainCounts.HasKey(domain))
+        {
+            domainCounts[domain] = domainCounts[domain] + 1;
+        }
+        else
+        {
+            
+            domainCounts[domain] = 1;
+        }
+    }
+
+    return domainCounts;
+}
 
     // Now write the two last ones yourself!
     // See: https://sys23m-jensen.lms.nodehill.se/uploads/videos/2021-05-18T15-38-54/sysa-23-presentation-2024-05-02-updated.html#8

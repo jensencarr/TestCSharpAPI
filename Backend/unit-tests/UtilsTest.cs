@@ -74,7 +74,43 @@ public class UtilsTest(Xlog Console)
         Assert.Equivalent(mockUsersNotInDb, result);
         Console.WriteLine("The test passed!");
     }
+    [Fact]
+    public void TestRemoveMockUsers()
+{
+    // Hämta alla användare från databasen efter att mock-användarna har lagts till
+    Arr usersInDbBeforeRemoval = SQLQuery("SELECT email FROM users");
+    Arr emailsInDbBeforeRemoval = usersInDbBeforeRemoval.Map(user => user.email);
 
+    // Filtrera ut de mock-användare som faktiskt finns i databasen
+    Arr mockUsersInDb = mockUsers.Filter(
+        mockUser => emailsInDbBeforeRemoval.Contains(mockUser.email)
+    );
+
+    // Kör metoden för att ta bort mock-användarna
+    var result = Utils.RemoveMockUsers();
+
+    // Kontrollera att antalet borttagna mock-användare är korrekt
+    Console.WriteLine($"The test expected that {mockUsersInDb.Length} users should be removed.");
+    Console.WriteLine($"And {result.Length} users were removed.");
+    Assert.Equivalent(mockUsersInDb, result);
+    Console.WriteLine("The test passed!");
+}
+
+[Fact]
+public void TestCountDomainsFromUserEmails()
+{
+    var result = Utils.CountDomainsFromUserEmails();
+
+    var expected = new Obj();
+    expected["nodehill.com"] = 3; 
+
+    Console.WriteLine("Expected: " + expected);
+    Console.WriteLine("Result: " + result);
+
+    Assert.Equivalent(expected, result);
+}
+
+
+}
     // Now write the two last ones yourself!
     // See: https://sys23m-jensen.lms.nodehill.se/uploads/videos/2021-05-18T15-38-54/sysa-23-presentation-2024-05-02-updated.html#8
-}
