@@ -54,17 +54,13 @@ public class UtilsTest(Xlog Console)
     [Fact]
     public void TestCreateMockUsers()
     {
-        // Get all users from the database
         Arr usersInDb = SQLQuery("SELECT email FROM users");
         Arr emailsInDb = usersInDb.Map(user => user.email);
-        // Only keep the mock users not already in db
         Arr mockUsersNotInDb = mockUsers.Filter(
             mockUser => !emailsInDb.Contains(mockUser.email)
         );
-        // Get the result of running the method in our code
         var result = Utils.CreateMockUsers();
-        // Assert that the CreateMockUsers only return
-        // newly created users in the db
+        
         Console.WriteLine($"The test expected that {mockUsersNotInDb.Length} users should be added.");
         Console.WriteLine($"And {result.Length} users were added.");
         Console.WriteLine("The test also asserts that the users added " +
@@ -74,7 +70,35 @@ public class UtilsTest(Xlog Console)
         Assert.Equivalent(mockUsersNotInDb, result);
         Console.WriteLine("The test passed!");
     }
+    [Fact]
+    public void TestRemoveMockUsers()
+{
+    Arr usersInDbBeforeRemoval = SQLQuery("SELECT email FROM users");
+    Arr emailsInDbBeforeRemoval = usersInDbBeforeRemoval.Map(user => user.email);
 
+    Arr mockUsersInDb = mockUsers.Filter(
+        mockUser => emailsInDbBeforeRemoval.Contains(mockUser.email)
+    );
+
+    var result = Utils.RemoveMockUsers();
+
+    Console.WriteLine($"The test expected that {mockUsersInDb.Length} users should be removed.");
+    Console.WriteLine($"And {result.Length} users were removed.");
+    Assert.Equivalent(mockUsersInDb, result);
+    Console.WriteLine("The test passed!");
+}
+
+[Fact]
+public void TestCountDomainsFromUserEmails()
+{
+    var expected = 3; // Korrekt värde är 3
+    var result = Utils.CountSpecificDomainFromUserEmails("nodehill.com");
+
+    Console.WriteLine("Expected: " + expected);
+    Console.WriteLine("Result: " + result);
+
+    Assert.Equal(expected, result);
+}
+}
     // Now write the two last ones yourself!
     // See: https://sys23m-jensen.lms.nodehill.se/uploads/videos/2021-05-18T15-38-54/sysa-23-presentation-2024-05-02-updated.html#8
-}

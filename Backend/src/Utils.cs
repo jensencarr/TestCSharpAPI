@@ -1,3 +1,5 @@
+using Microsoft.VisualStudio.TestPlatform.CrossPlatEngine.Helpers;
+
 namespace WebApp;
 public static class Utils
 {
@@ -5,6 +7,7 @@ public static class Utils
     private static readonly Arr mockUsers = JSON.Parse(
         File.ReadAllText(FilePath("json", "mock-users.json"))
     );
+
 
     // Read all bad words from file and sort from longest to shortest
     // if we didn't sort we would often get "---ing" instead of "---" etc.
@@ -47,22 +50,68 @@ public static class Utils
         Arr successFullyWrittenUsers = Arr();
         foreach (var user in mockUsers)
         {
-            // user.password = "12345678";
             var result = SQLQueryOne(
                 @"INSERT INTO users(firstName,lastName,email,password)
                 VALUES($firstName, $lastName, $email, $password)
             ", user);
-            // If we get an error from the DB then we haven't added
-            // the mock users, if not we have so add to the successful list
             if (!result.HasKey("error"))
             {
-                // The specification says return the user list without password
                 user.Delete("password");
                 successFullyWrittenUsers.Push(user);
             }
         }
         return successFullyWrittenUsers;
     }
+
+    public static Arr RemoveMockUsers()
+    {
+    Arr successfullyRemovedUsers = new Arr();
+
+    foreach (var user in mockUsers)
+    {
+        var result = SQLQueryOne(
+            "SELECT * FROM users WHERE email = $email",
+            new { email = user.email }
+        );
+
+        if (result != null && !result.HasKey("error"))
+        {
+
+            var deleteResult = SQLQueryOne(
+                "DELETE FROM users WHERE email = $email RETURNING firstName, lastName, email",
+                new { email = user.email }
+            );
+
+            if (deleteResult != null && !deleteResult.HasKey("error"))
+            {
+                successfullyRemovedUsers.Push(deleteResult);
+            }
+        }
+    }
+
+    return successfullyRemovedUsers;
+    }
+
+    public static int CountSpecificDomainFromUserEmails(string domainToCount)
+{
+    // Hämta alla användare från databasen
+    var users = SQLQuery("SELECT email FROM users");
+
+    int domainCount = 0;
+
+    foreach (var user in users)
+    {
+        var email = user.email;
+        var domain = email.Split('@')[1];
+
+        if (domain == domainToCount)
+        {
+            domainCount++;
+        }
+    }
+
+    return domainCount;
+}
 
     // Now write the two last ones yourself!
     // See: https://sys23m-jensen.lms.nodehill.se/uploads/videos/2021-05-18T15-38-54/sysa-23-presentation-2024-05-02-updated.html#8

@@ -24,6 +24,7 @@ public static class Acl
         });
     }
 
+
     public static bool Allow(
         HttpContext context, string method = "", string path = ""
     )
