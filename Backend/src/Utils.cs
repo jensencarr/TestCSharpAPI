@@ -50,16 +50,12 @@ public static class Utils
         Arr successFullyWrittenUsers = Arr();
         foreach (var user in mockUsers)
         {
-            // user.password = "12345678";
             var result = SQLQueryOne(
                 @"INSERT INTO users(firstName,lastName,email,password)
                 VALUES($firstName, $lastName, $email, $password)
             ", user);
-            // If we get an error from the DB then we haven't added
-            // the mock users, if not we have so add to the successful list
             if (!result.HasKey("error"))
             {
-                // The specification says return the user list without password
                 user.Delete("password");
                 successFullyWrittenUsers.Push(user);
             }
@@ -69,27 +65,23 @@ public static class Utils
 
     public static Arr RemoveMockUsers()
     {
-    // Lista för att hålla de användare som faktiskt togs bort
     Arr successfullyRemovedUsers = new Arr();
 
     foreach (var user in mockUsers)
     {
-        // Kontrollera om användaren finns i databasen
         var result = SQLQueryOne(
             "SELECT * FROM users WHERE email = $email",
             new { email = user.email }
         );
 
-        // Om användaren finns i databasen, ta bort användaren
         if (result != null && !result.HasKey("error"))
         {
-            // Ta bort användaren
+
             var deleteResult = SQLQueryOne(
                 "DELETE FROM users WHERE email = $email RETURNING firstName, lastName, email",
                 new { email = user.email }
             );
 
-            // Om borttagningen lyckades, lägg till användaren i listan
             if (deleteResult != null && !deleteResult.HasKey("error"))
             {
                 successfullyRemovedUsers.Push(deleteResult);
@@ -100,30 +92,25 @@ public static class Utils
     return successfullyRemovedUsers;
     }
 
-    public static Obj CountDomainsFromUserEmails()
+    public static int CountSpecificDomainFromUserEmails(string domainToCount)
 {
     // Hämta alla användare från databasen
     var users = SQLQuery("SELECT email FROM users");
 
-    Obj domainCounts = new Obj();
+    int domainCount = 0;
 
     foreach (var user in users)
     {
         var email = user.email;
         var domain = email.Split('@')[1];
 
-        if (domainCounts.HasKey(domain))
+        if (domain == domainToCount)
         {
-            domainCounts[domain] = domainCounts[domain] + 1;
-        }
-        else
-        {
-            
-            domainCounts[domain] = 1;
+            domainCount++;
         }
     }
 
-    return domainCounts;
+    return domainCount;
 }
 
     // Now write the two last ones yourself!
